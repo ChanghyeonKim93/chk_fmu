@@ -1,0 +1,18 @@
+{
+  "CHKBOARD": {
+    "inherits": [
+      "MCU_STM32F407xE"
+    ],
+    "device_has_remove": [
+      "SERIAL_FC"
+    ],
+    "device_name": "STM32F407VETx",
+    "overrides": {
+      "clock_source": "USE_PLL_HSE_XTAL",
+      "lse_available": 0
+    },
+    "detect_code": [
+      "1015"
+    ]
+  }
+}
