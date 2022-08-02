@@ -242,18 +242,18 @@ int main() {
         std::chrono::duration<int, std::micro> dt_send_telemetry = time_curr - time_send_telemetry_prev;
 
         // Telemetry send
-        if(dt_send_telemetry.count() > 199999) {
-            telemetry_send[0]  = 'a';
-            telemetry_send[1]  = 'b';
-            telemetry_send[2]  = 'c';
-            telemetry_send[3]  = 'd';
+        // if(dt_send_telemetry.count() > 199999) {
+        //     telemetry_send[0]  = 'a';
+        //     telemetry_send[1]  = 'b';
+        //     telemetry_send[2]  = 'c';
+        //     telemetry_send[3]  = 'd';
 
-            len_telemetry_send = 4;
-            if(serial_telemetry.writable()) 
-                tryToSendSerialTelemetry();
+        //     len_telemetry_send = 4;
+        //     if(serial_telemetry.writable()) 
+        //         tryToSendSerialTelemetry();
             
-            time_send_telemetry_prev = time_curr;
-        }
+        //     time_send_telemetry_prev = time_curr;
+        // }
 
         // IMU received.
         if(flag_imu_ready){
