@@ -2,7 +2,7 @@
 ## Flight Microcontroller Unit for LARR
 
 <p align = "center">
-<img src= "https://github.com/ChanghyeonKim93/chk_fmu/blob/main/readme_imgs/chk_fmu_board.jpg" alt="CHK FMU board" width="250" height="270">
+<img src= "https://github.com/ChanghyeonKim93/chk_fmu/blob/master/readme_imgs/chk_fmu_board.jpg" alt="CHK FMU board" width="250" height="270">
 </p> 
 
 This package is for '**Flight Microcontroller Unit (FMU) by chk**.
