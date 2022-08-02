@@ -1,8 +1,7 @@
-# chk_fmu
 ## Flight Microcontroller Unit for LARR
 
-<p align = "center">
-<img src= "https://github.com/ChanghyeonKim93/chk_fmu/blob/master/readme_imgs/chk_fmu_board.jpg" alt="CHK FMU board" width="250" height="270">
+<p align = "left">
+<img src= "https://github.com/ChanghyeonKim93/chk_fmu/blob/master/readme_imgs/chk_fmu_board.jpg" alt="CHK FMU board" width="300" height="420">
 </p> 
 
 This package is for '**Flight Microcontroller Unit (FMU) by chk**.
@@ -53,8 +52,10 @@ CHK_FMU can provide belows:
   9) Connect ST-LINK/V2 and the FMU. 
   10) 
   11) At the left navigator bar, drop down the 'Target' dropdown menu, and click 'Manage custom targets' (chip-shaped icon).
-  <p align = "center">
-  <img src= "https://github.com/ChanghyeonKim93/chk_fmu/blob/main/readme_imgs/aligned_four_lidars.png" alt="aligned four lidars via the AutoL2LCalib" width="240" height="240">
-  </p> 
+
+
+<p align = "left">
+<img src= "https://github.com/ChanghyeonKim93/chk_fmu/blob/master/readme_imgs/usb_device.png" alt="menu" width="300" height="420">
+</p> 
 
   13)  
