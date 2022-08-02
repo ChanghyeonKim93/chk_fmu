@@ -30,7 +30,7 @@ CHK_FMU can provide belows:
 
 - `aa`: dfdf
 <p align = "left">
-<img src= "https://github.com/JunhaAgu/AutoL2LCalib/blob/main/imgs/pcd_structure.png" alt="pcd file inside" width="250" height="270">
+<img src= "https://github.com/ChanghyeonKim93/chk_fmu/blob/main/readme_imgs/fmu_board.png" alt="CHK FMU board" width="250" height="270">
 </p> 
 2.Upload FMU program
 ------
@@ -47,12 +47,12 @@ CHK_FMU can provide belows:
   6) Copy all contents of the 'MBED_FILES' folder of this repository to the 'Mbed Programs/CHK_FMU_Program/'.
   7) Back to the Mbed Studio program.
   8) Now, you can see the file navigator on the left that 'TARGET_CHKBOARD' folder, 'custom_targets.json' file, and many cpp and h files are added.
-  9) 
-<p align = "center">
-<img src= "https://github.com/JunhaAgu/AutoL2LCalib/blob/main/imgs/aligned_four_lidars.png" alt="aligned four lidars via the AutoL2LCalib" width="450" height="470">
-</p> 
 
   9) Connect ST-LINK/V2 and the FMU. 
   10) 
   11) At the left navigator bar, drop down the 'Target' dropdown menu, and click 'Manage custom targets' (chip-shaped icon).
-  12)  
+  <p align = "center">
+  <img src= "https://github.com/ChanghyeonKim93/chk_fmu/blob/main/readme_imgs/aligned_four_lidars.png" alt="aligned four lidars via the AutoL2LCalib" width="240" height="240">
+  </p> 
+
+  13)  
