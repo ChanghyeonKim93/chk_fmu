@@ -49,9 +49,13 @@ CHK_FMU can provide belows:
   7) Back to the Mbed Studio program.
   8) Now, you can see the file navigator on the left that 'TARGET_CHKBOARD' folder, 'custom_targets.json' file, and many cpp and h files are added.
 
-  9) Connect ST-LINK/V2 and the FMU. 
-  10) 
-  11) At the left navigator bar, drop down the 'Target' dropdown menu, and click 'Manage custom targets' (chip-shaped icon).
+  9) Connect ST-LINK/V2  GND,NRST, SWDIO, SWCLK with the FMU GND,NRST, SWDIO, SWCLK. Refer to the ST LINK/V2 pinmap.
+
+<p align = "left">
+<img src= "https://github.com/ChanghyeonKim93/chk_fmu/blob/master/readme_imgs/stlink_pinmap.jpeg" alt="stlink pinmap" width="300" height="420">
+</p> 
+
+  13) At the left navigator bar, drop down the 'Target' dropdown menu, and click 'Manage custom targets' (chip-shaped icon).
 
 
 <p align = "left">
