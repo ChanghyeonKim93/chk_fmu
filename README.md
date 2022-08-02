@@ -33,6 +33,13 @@ CHK_FMU can provide belows:
 
 <!-- - `aa`: dfdf -->
 
+2.Dependencies
+------
+* communicate_nucleo (link: https://github.com/ChanghyeonKim93/communicate_nucleo)
+
+  ROS package for serial communication with the peripherals 
+
+
 2.Upload FMU program
 ------
   1) Install the Mbed Studio (https://os.mbed.com/studio/)
@@ -66,3 +73,7 @@ CHK_FMU can provide belows:
     
   12) Select 'Build profile' as Release and run the code. Then, code will be compiled (it takes long time..) and uploaded to the FMU.
   
+
+
+3. Use it!
+------
