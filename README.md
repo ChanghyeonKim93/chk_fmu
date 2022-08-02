@@ -1,6 +1,10 @@
 # chk_fmu
 ## Flight Microcontroller Unit for LARR
 
+<p align = "center">
+<img src= "https://github.com/ChanghyeonKim93/chk_fmu/blob/main/readme_imgs/chk_fmu_board.jpg" alt="CHK FMU board" width="250" height="270">
+</p> 
+
 This package is for '**Flight Microcontroller Unit (FMU) by chk**.
 It is built from the scratch using a STM32F407VET6 MCU.
 
@@ -28,10 +32,8 @@ CHK_FMU can provide belows:
 * four female-to-female jumper cables (to connect ST-LINK/V2 and the FMU)
 * micro-USB cable (5V power from PC to FMU, and USB communication with PC)
 
-- `aa`: dfdf
-<p align = "left">
-<img src= "https://github.com/ChanghyeonKim93/chk_fmu/blob/main/readme_imgs/fmu_board.png" alt="CHK FMU board" width="250" height="270">
-</p> 
+<!-- - `aa`: dfdf -->
+
 2.Upload FMU program
 ------
   1) Install the Mbed Studio (https://os.mbed.com/studio/)
