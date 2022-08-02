@@ -49,17 +49,20 @@ CHK_FMU can provide belows:
   7) Back to the Mbed Studio program.
   8) Now, you can see the file navigator on the left that 'TARGET_CHKBOARD' folder, 'custom_targets.json' file, and many cpp and h files are added.
 
-  9) Connect ST-LINK/V2  GND,NRST, SWDIO, SWCLK with the FMU GND,NRST, SWDIO, SWCLK. Refer to the ST LINK/V2 pinmap.
+  9) Connect ST-LINK/V2 GND,VCC,SWDIO,SWCLK  <--> FMU  GND,NRST,SWDIO,SWCLK. Refer to below ST LINK/V2 pinmap.
 
 <p align = "left">
-<img src= "https://github.com/ChanghyeonKim93/chk_fmu/blob/master/readme_imgs/stlink_pinmap.jpeg" alt="stlink pinmap" width="300" height="420">
+<img src= "https://github.com/ChanghyeonKim93/chk_fmu/blob/master/readme_imgs/stlink_pinmap.jpeg" alt="stlink pinmap" width="400" height="280">
 </p> 
 
-  13) At the left navigator bar, drop down the 'Target' dropdown menu, and click 'Manage custom targets' (chip-shaped icon).
-
-
-<p align = "left">
-<img src= "https://github.com/ChanghyeonKim93/chk_fmu/blob/master/readme_imgs/usb_device.png" alt="menu" width="300" height="420">
-</p> 
-
-  13)  
+  10) Then, connect ST-LINK/V2 to the PC using USB cable.
+  11) At the left navigator bar, drop down the 'Target' dropdown menu, and click 'Manage custom targets' (chip-shaped icon).
+  
+    Select 'USB device' to the your STM32 LINK device.
+    Type 'Target name':  CHKBOARD 
+    Select 'Build target': CHKBOARD
+    Find 'STM32F407VE' at the 'Deploy and debug target' and select it.
+    Click 'Save All'
+    
+  12) Select 'Build profile' as Release and run the code. Then, code will be compiled (it takes long time..) and uploaded to the FMU.
+  
