@@ -4,7 +4,8 @@
 
 SerialCommunicatorMbed::SerialCommunicatorMbed(int baud_rate)
 // : buffered_serial_(USBTX, USBRX),
-: buffered_serial_(PA_9, PA_10),
+// : buffered_serial_(PA_9, PA_10),
+: buffered_serial_(PD_5, PD_6),
  signal_recv_(PD_0), signal_packet_ready_(PD_1), signal_etx_(PD_2), signal_send_(PD_3)
 {
     //Serial baud rate

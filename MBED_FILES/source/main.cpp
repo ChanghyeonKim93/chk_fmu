@@ -20,8 +20,8 @@ EventQueue event_queue(128 * EVENTS_EVENT_SIZE);
 // Parameter settings
 #define BAUD_RATE 921600
 
-#define PIN_IMU_INT PD_8
-#define PIN_TRIGGER PD_9
+#define MPU9250_INT PE_2
+#define PIN_TRIGGER PA_15
 
 #define CAN1_TX PA_12
 #define CAN1_RX PA_11
@@ -66,10 +66,10 @@ EventQueue event_queue(128 * EVENTS_EVENT_SIZE);
 #define ADC1_IN13 PC_3
 
 // IMU
-MPU9250 imu(SPI2_CS0, SPI2_MOSI, SPI2_MISO, SPI2_SCK, 
+MPU9250 imu(SPI1_CS0, SPI1_MOSI, SPI1_MISO, SPI1_SCK, 
     AFS_8G, GFS_1000DPS, MFS_16BITS, MPU9250_FREQ_1000Hz);
 
-InterruptIn imu_int(PIN_IMU_INT);
+InterruptIn imu_int(MPU9250_INT);
 DigitalOut signal_trigger(PIN_TRIGGER);
 
 int16_t data[9];
@@ -176,32 +176,6 @@ int main() {
     std::chrono::microseconds time_recv_prev = timer.elapsed_time();
     std::chrono::microseconds time_curr;
 
-    // Start the event queue
-    thread_poll.start(callback(&event_queue, &EventQueue::dispatch_forever));
-
-    // Start the MPU-9250 
-    imu.resetMPU9250();
-    ThisThread::sleep_for(1000ms);
-
-    float gyroBias[3]       = {0, 0, 0};
-    float accelBias[3]      = {0, 0, 0}; // Bias corrections for gyro and accelerometer
-    float magCalibration[3] = {0, 0, 0};
-
-    imu.calibrateMPU9250(gyroBias, accelBias);
-    ThisThread::sleep_for(1000ms);
-
-    imu.initMPU9250();
-    ThisThread::sleep_for(1000ms);
-    
-    imu.initAK8963(magCalibration);
-    ThisThread::sleep_for(1000ms);
-    
-    // Start interrupt at rising edge.
-    imu_int.rise(ISR_IMU);
-
-    // signal_trigger low.
-    signal_trigger = 0;
-
     pwm_values[0] = 500;
     pwm_values[1] = 2047;
     pwm_values[2] = 500;
@@ -211,6 +185,33 @@ int main() {
     pwm_values[6] = 500;
     pwm_values[7] = 2047;
 
+    // Start the event queue
+    thread_poll.start(callback(&event_queue, &EventQueue::dispatch_forever));
+
+    // Start the MPU-9250 
+    imu.resetMPU9250();
+    ThisThread::sleep_for(200ms);
+
+    float gyroBias[3]       = {0, 0, 0};
+    float accelBias[3]      = {0, 0, 0}; // Bias corrections for gyro and accelerometer
+    float magCalibration[3] = {0, 0, 0};
+
+    imu.calibrateMPU9250(gyroBias, accelBias);
+    ThisThread::sleep_for(200ms);
+
+    imu.initMPU9250();
+    ThisThread::sleep_for(200ms);
+    
+    imu.initAK8963(magCalibration);
+    ThisThread::sleep_for(200ms);
+    
+    // Start interrupt at rising edge.
+    imu_int.rise(ISR_IMU);
+
+    // signal_trigger low.
+    signal_trigger = 0;
+                // setMotorPWM_01234567(pwm_values);
+
     flag_IMU_init = true;
     while (true) {
         // Write if writable.
@@ -219,8 +220,8 @@ int main() {
         // time_curr.count();
 
         if(flag_imu_ready){
+            setMotorPWM_01234567(pwm_values);
             if(serial.writable()) {
-                setMotorPWM_01234567(pwm_values);
 
                 for(int ii= 0; ii < 4; ++ii){
                     unsigned short tmp0 = pwm_values[2*ii];
