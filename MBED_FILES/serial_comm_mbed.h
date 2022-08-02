@@ -49,13 +49,13 @@ private:
     // uint32_t seq_
 
 private:
-    DigitalOut signal_recv_;
-    DigitalOut signal_etx_;
-    DigitalOut signal_packet_ready_;
-    DigitalOut signal_send_;
+    // DigitalOut signal_recv_;
+    // DigitalOut signal_etx_;
+    // DigitalOut signal_packet_ready_;
+    // DigitalOut signal_send_;
 
 public:
-    SerialCommunicatorMbed(int baud_rate);
+    SerialCommunicatorMbed(int baud_rate, PinName pin_tx, PinName pin_rx);
     
     void send_withChecksum(const unsigned char* data, int len);
     void send_withoutChecksum(const unsigned char* data, int len);

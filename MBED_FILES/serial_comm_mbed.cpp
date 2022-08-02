@@ -2,11 +2,11 @@
 #include "BufferedSerial.h"
 #include "crc16.h"
 
-SerialCommunicatorMbed::SerialCommunicatorMbed(int baud_rate)
+SerialCommunicatorMbed::SerialCommunicatorMbed(int baud_rate, PinName pin_tx, PinName pin_rx)
 // : buffered_serial_(USBTX, USBRX),
 // : buffered_serial_(PA_9, PA_10),
-: buffered_serial_(PD_5, PD_6),
- signal_recv_(PD_0), signal_packet_ready_(PD_1), signal_etx_(PD_2), signal_send_(PD_3)
+: buffered_serial_(pin_tx, pin_rx)
+//  signal_recv_(PD_0), signal_packet_ready_(PD_1), signal_etx_(PD_2), signal_send_(PD_3)
 {
     //Serial baud rate
     buffered_serial_.set_baud(baud_rate);
@@ -34,7 +34,7 @@ SerialCommunicatorMbed::SerialCommunicatorMbed(int baud_rate)
 
 
 void SerialCommunicatorMbed::send_withChecksum(const unsigned char* data, int len){
-    signal_send_ = true;
+    // signal_send_ = true;
     USHORT_UNION crc16_calc;
     crc16_calc.ushort_ = crc16_ccitt(data, 0, len-1);
 
@@ -64,7 +64,7 @@ void SerialCommunicatorMbed::send_withChecksum(const unsigned char* data, int le
     buf_send_[idx++] = DLE; buf_send_[idx++] = ETX; // DLE, ETX --> end of the packet.
 
     buffered_serial_.write((void*)buf_send_, idx);
-    signal_send_ = false;
+    // signal_send_ = false;
 };
 
 void SerialCommunicatorMbed::send_withoutChecksum(const unsigned char* data, int len){
@@ -80,7 +80,7 @@ bool SerialCommunicatorMbed::tryToReadSerialBuffer(){
         if(len_read > 0) { // there is data
         
             for(uint32_t i = 0; i < len_read; ++i){
-                signal_recv_ = true;
+                // signal_recv_ = true;
 
                 unsigned char c = buf_recv_[i];
 
@@ -93,7 +93,7 @@ bool SerialCommunicatorMbed::tryToReadSerialBuffer(){
                             ++idx_stk_;
                         }
                         else if(c == ETX){
-                            signal_etx_ = true;
+                            // signal_etx_ = true;
 
                             flagStacking = false;
                             flagDLEFound = false;
@@ -107,7 +107,7 @@ bool SerialCommunicatorMbed::tryToReadSerialBuffer(){
 
                             if(crc16_calc.ushort_ == crc16_recv.ushort_){
                                 // CRC test OK!
-                                signal_packet_ready_ = true;
+                                // signal_packet_ready_ = true;
 
                                 ++seq_recv_;
                                 // Packet end. copy the packet.
@@ -117,7 +117,7 @@ bool SerialCommunicatorMbed::tryToReadSerialBuffer(){
                                 }
                                 flag_packet_ready_ = true;
 
-                                signal_packet_ready_ = false;
+                                // signal_packet_ready_ = false;
                             }
                             else{
                                 // CRC error!
@@ -127,7 +127,7 @@ bool SerialCommunicatorMbed::tryToReadSerialBuffer(){
                             }
 
                             idx_stk_ = 0;
-                            signal_etx_ = false;
+                            // signal_etx_ = false;
                         }
                         else{
                             // exceptional case
@@ -169,7 +169,7 @@ bool SerialCommunicatorMbed::tryToReadSerialBuffer(){
                         }
                     }
                 }// end if(flagStacking) or not
-                signal_recv_ = false;
+                // signal_recv_ = false;
             } // end for
         } // end if(len_read>0)
     }

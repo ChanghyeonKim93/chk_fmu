@@ -18,9 +18,11 @@ Thread thread_poll(osPriorityRealtime); // polling all interrupt signals. https:
 EventQueue event_queue(128 * EVENTS_EVENT_SIZE);
 
 // Parameter settings
-#define BAUD_RATE 921600
+#define BAUD_RATE_USB 921600
+#define BAUD_RATE_TELEMETRY 57600
 
 #define MPU9250_INT PE_2
+
 #define PIN_TRIGGER PA_15
 
 #define CAN1_TX PA_12
@@ -65,12 +67,14 @@ EventQueue event_queue(128 * EVENTS_EVENT_SIZE);
 #define ADC1_IN12 PC_2
 #define ADC1_IN13 PC_3
 
+// Trigger
+DigitalOut signal_trigger(PIN_TRIGGER);
+
 // IMU
 MPU9250 imu(SPI1_CS0, SPI1_MOSI, SPI1_MISO, SPI1_SCK, 
     AFS_8G, GFS_1000DPS, MFS_16BITS, MPU9250_FREQ_1000Hz);
 
 InterruptIn imu_int(MPU9250_INT);
-DigitalOut signal_trigger(PIN_TRIGGER);
 
 int16_t data[9];
 SHORT_UNION acc_short[3];
@@ -93,8 +97,7 @@ volatile uint8_t flag_camera_trigger = CAMERA_TRIGGER_LOW;
 
 void workfunction_getIMU(){
     if(flag_IMU_init){
-        // Current time
-        us_curr      = timer.elapsed_time().count();
+        us_curr      = timer.elapsed_time().count(); // Current time
         tsec.ushort_ = (uint16_t)(us_curr/1000000);
         tusec.uint_  = (uint32_t)(us_curr-((uint32_t)tsec.ushort_)*1000000);
         
@@ -118,24 +121,62 @@ void ISR_IMU(){
     event_queue.call(workfunction_getIMU);
 };
 
-
 // Serial
 uint8_t packet_send[256];
 uint8_t packet_recv[256];
-
 uint32_t len_packet_recv = 0;
 uint32_t len_packet_send = 0;
-SerialCommunicatorMbed serial(BAUD_RATE);
+SerialCommunicatorMbed serial_usb(BAUD_RATE_USB, USART1_TX, USART1_RX);
 
-DroneMotorPwm motor_pwm;
-uint16_t pwm_values[8]; 
+uint8_t telemetry_send[256];
+uint8_t telemetry_recv[256];
+uint32_t len_telemetry_recv = 0;
+uint32_t len_telemetry_send = 0;
+SerialCommunicatorMbed serial_telemetry(BAUD_RATE_TELEMETRY, USART2_TX, USART2_RX);
 
-void setMotorPWM(uint8_t n, uint16_t pwm_ushort){
-    if(pwm_ushort > 4095) pwm_ushort = 4095;
-    if(pwm_ushort < 0) pwm_ushort = 0;
-    motor_pwm.setPWM(n, pwm_ushort);
+void workfunction_readSerialUSB(){
+    if(serial_usb.tryToReadSerialBuffer()) { // packet ready!
+        int len_recv_message = 0;
+        len_recv_message = serial_usb.getReceivedMessage(packet_recv); 
+
+        if( len_recv_message > 0 ) { // Successfully received the packet.
+            // do something...
+        }
+    }
+};
+void workfunction_sendSerialUSB(){
+    if(serial_usb.writable()){
+        serial_usb.send_withChecksum(packet_send, len_packet_send);
+        len_packet_send = 0;
+    }
 };
 
+void workfunction_readSerialTelemetry(){
+    if(serial_telemetry.tryToReadSerialBuffer()) { // packet ready!
+        int len_recv_message = 0;
+        len_recv_message = serial_telemetry.getReceivedMessage(telemetry_recv); 
+
+        if( len_recv_message > 0 ) { // Successfully received the packet.
+            // do something...
+        }
+    }
+};
+void workfunction_sendSerialTelemetry(){
+    if(serial_telemetry.writable()){
+        serial_telemetry.send_withChecksum(telemetry_send, len_telemetry_send);
+        len_telemetry_send = 0;
+    }
+};
+
+void tryToReadSerialUSB(){ event_queue.call(workfunction_readSerialUSB); };
+void tryToSendSerialUSB(){ event_queue.call(workfunction_sendSerialUSB); };
+void tryToReadSerialTelemetry(){ event_queue.call(workfunction_readSerialTelemetry); };
+void tryToSendSerialTelemetry(){ event_queue.call(workfunction_sendSerialTelemetry); };
+
+
+// PWM outputs
+DroneMotorPwm motor_pwm;
+uint16_t pwm_values[8]; 
 void setMotorPWM_01234567(uint16_t pwm_ushort[8]){
     for(int i = 0; i < 8; ++i){
         if(pwm_ushort[i] < 0 ) pwm_ushort[i] = 0;
@@ -144,36 +185,15 @@ void setMotorPWM_01234567(uint16_t pwm_ushort[8]){
     motor_pwm.setPWM_all(pwm_ushort);
 };
 
-void workfunction_readSerial(){
-    if(serial.tryToReadSerialBuffer()) { // packet ready!
-        int len_recv_message = 0;
-        len_recv_message = serial.getReceivedMessage(packet_recv); 
-
-        if( len_recv_message > 0 ) { // Successfully received the packet.
-            // do something...
-        }
-    }
-};
-void tryToReadSerial(){
-    event_queue.call(workfunction_readSerial);
-};
-
-void workfunction_sendSerial(){
-    if(serial.writable()){
-        serial.send_withChecksum(packet_send, len_packet_send);
-        len_packet_send = 0;
-    }
-}
-
-void tryToSendSerial(){
-    event_queue.call(workfunction_sendSerial);
-};
-
 int main() {
     // Timer starts.
     timer.start();
-    std::chrono::microseconds time_send_prev = timer.elapsed_time();
-    std::chrono::microseconds time_recv_prev = timer.elapsed_time();
+    std::chrono::microseconds time_send_usb_prev = timer.elapsed_time();
+    std::chrono::microseconds time_recv_usb_prev = timer.elapsed_time();
+    
+    std::chrono::microseconds time_send_telemetry_prev = timer.elapsed_time();
+    std::chrono::microseconds time_recv_telemetry_prev = timer.elapsed_time();
+
     std::chrono::microseconds time_curr;
 
     pwm_values[0] = 500;
@@ -210,25 +230,42 @@ int main() {
 
     // signal_trigger low.
     signal_trigger = 0;
-                // setMotorPWM_01234567(pwm_values);
 
     flag_IMU_init = true;
+
+    int cnt = 0;
+    int ii = 0;
     while (true) {
         // Write if writable.
         time_curr = timer.elapsed_time();
-        std::chrono::duration<int, std::micro> dt_send = time_curr - time_send_prev;
-        // time_curr.count();
+        std::chrono::duration<int, std::micro> dt_send_usb = time_curr - time_send_usb_prev;
+        std::chrono::duration<int, std::micro> dt_send_telemetry = time_curr - time_send_telemetry_prev;
 
+        // Telemetry send
+        if(dt_send_telemetry.count() > 199999) {
+            telemetry_send[0]  = 'a';
+            telemetry_send[1]  = 'b';
+            telemetry_send[2]  = 'c';
+            telemetry_send[3]  = 'd';
+
+            len_telemetry_send = 4;
+            if(serial_telemetry.writable()) 
+                tryToSendSerialTelemetry();
+            
+            time_send_telemetry_prev = time_curr;
+        }
+
+        // IMU received.
         if(flag_imu_ready){
+            for(ii = 0; ii < 4; ++ii){
+                unsigned short tmp0 = pwm_values[2*ii];
+                pwm_values[2*ii] = pwm_values[2*ii+1];
+                pwm_values[2*ii+1] = tmp0;
+            }
             setMotorPWM_01234567(pwm_values);
-            if(serial.writable()) {
-
-                for(int ii= 0; ii < 4; ++ii){
-                    unsigned short tmp0 = pwm_values[2*ii];
-                    pwm_values[2*ii] = pwm_values[2*ii+1];
-                    pwm_values[2*ii+1] = tmp0;
-                }
-
+            
+            if(serial_usb.writable()) { // If serial USB can be written,
+                // Trigger signal output.
                 ++trigger_count;
                 if(trigger_count >= trigger_step){
                     trigger_count = 0;
@@ -236,26 +273,18 @@ int main() {
                     signal_trigger = 1;
                 }
                 
-                packet_send[0]  = acc_short[0].bytes_[0];
-                packet_send[1]  = acc_short[0].bytes_[1];
-                packet_send[2]  = acc_short[1].bytes_[0];
-                packet_send[3]  = acc_short[1].bytes_[1];
-                packet_send[4]  = acc_short[2].bytes_[0];
-                packet_send[5]  = acc_short[2].bytes_[1];
+                // Fill IMU data into the serial buffer
+                packet_send[0]  = acc_short[0].bytes_[0]; packet_send[1]  = acc_short[0].bytes_[1];
+                packet_send[2]  = acc_short[1].bytes_[0]; packet_send[3]  = acc_short[1].bytes_[1];
+                packet_send[4]  = acc_short[2].bytes_[0]; packet_send[5]  = acc_short[2].bytes_[1];
                 
-                packet_send[6]  = gyro_short[0].bytes_[0];
-                packet_send[7]  = gyro_short[0].bytes_[1];
-                packet_send[8]  = gyro_short[1].bytes_[0];
-                packet_send[9]  = gyro_short[1].bytes_[1];
-                packet_send[10] = gyro_short[2].bytes_[0];
-                packet_send[11] = gyro_short[2].bytes_[1];
+                packet_send[6]  = gyro_short[0].bytes_[0]; packet_send[7]  = gyro_short[0].bytes_[1];
+                packet_send[8]  = gyro_short[1].bytes_[0]; packet_send[9]  = gyro_short[1].bytes_[1];
+                packet_send[10] = gyro_short[2].bytes_[0]; packet_send[11] = gyro_short[2].bytes_[1];
 
-                packet_send[12] = mag_short[0].bytes_[0];
-                packet_send[13] = mag_short[0].bytes_[1];
-                packet_send[14] = mag_short[1].bytes_[0];
-                packet_send[15] = mag_short[1].bytes_[1];
-                packet_send[16] = mag_short[2].bytes_[0];
-                packet_send[17] = mag_short[2].bytes_[1];
+                packet_send[12] = mag_short[0].bytes_[0]; packet_send[13] = mag_short[0].bytes_[1];
+                packet_send[14] = mag_short[1].bytes_[0]; packet_send[15] = mag_short[1].bytes_[1];
+                packet_send[16] = mag_short[2].bytes_[0]; packet_send[17] = mag_short[2].bytes_[1];
 
                 packet_send[18]  = tsec.bytes_[0];  // time (second part, low)
                 packet_send[19]  = tsec.bytes_[1];  // time (second part, high)
@@ -266,21 +295,21 @@ int main() {
                 packet_send[23]  = tusec.bytes_[3]; // time (microsecond part, highest)
 
                 packet_send[24]  = flag_camera_trigger; // 'CAMERA_TRIGGER_HIGH' or 'CAMERA_TRIGGER_LOW'
-
-                len_packet_send = 25;
-                tryToSendSerial();
-
-                flag_imu_ready = false;
-
                 signal_trigger = 0;
                 flag_camera_trigger = CAMERA_TRIGGER_LOW;
+
+                len_packet_send = 25;
+
+                tryToSendSerialUSB(); // Send!
+
+                flag_imu_ready = false;
+                time_send_usb_prev = time_curr;
             }
-            time_send_prev = time_curr;
         }            
     
         // Read data if data exists.
-        if(serial.readable()) {
-            tryToReadSerial();
+        if(serial_usb.readable()) {
+            tryToReadSerialUSB();
         }
         
     }
