@@ -4,7 +4,8 @@
       "MCU_STM32F407xE"
     ],
     "device_has_remove": [
-      "SERIAL_FC"
+      "SERIAL_FC",
+      "CAN"
     ],
     "device_name": "STM32F407VETx",
     "overrides": {
