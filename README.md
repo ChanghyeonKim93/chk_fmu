@@ -40,7 +40,7 @@ CHK_FMU can provide belows:
   ROS package for serial communication with the peripherals 
 
 
-2.Upload FMU program
+3.Upload FMU program
 ------
   1) Install the Mbed Studio (https://os.mbed.com/studio/)
 
@@ -75,5 +75,6 @@ CHK_FMU can provide belows:
   
 
 
-3. Use it!
+
+4.Use it!
 ------
