@@ -30,7 +30,7 @@ set(SRC ${SRC}
     src/timer.cpp
 
     src/serial_communicator.cpp
-    src/serial_comm_ros.cpp
+    src/fmu_serial_pc_ros.cpp
     src/crc16.cpp
 )
 

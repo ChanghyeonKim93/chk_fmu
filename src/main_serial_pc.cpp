@@ -1,6 +1,6 @@
 #include <iostream>
 #include <ros/ros.h>
-#include "serial_comm_ros.h"
+#include "fmu_serial_pc_ros.h"
 
 int main(int argc, char **argv) {
     ros::init(argc, argv, "fmu_serial_pc_node");
@@ -10,8 +10,8 @@ int main(int argc, char **argv) {
 	
 	try{
 		if(ros::ok()) {
-			std::shared_ptr<SerialCommROS> serial_ros;
-			serial_ros = std::make_shared<SerialCommROS>(nh);
+			std::shared_ptr<FmuSerialPC_ROS> serial_pc_ros;
+			serial_pc_ros = std::make_shared<FmuSerialPC_ROS>(nh);
 		}
 		else{
 			throw std::runtime_error("ros not ok");

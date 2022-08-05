@@ -1,5 +1,5 @@
-#ifndef _SERIAL_COMM_ROS_H_
-#define _SERIAL_COMM_ROS_H_
+#ifndef _FMU_SERIAL_PC_ROS_H_
+#define _FMU_SERIAL_PC_ROS_H_
 
 #include <iostream>
 #include <ros/ros.h>
@@ -11,10 +11,10 @@
 
 #define BUF_SIZE 1024
 
-class SerialCommROS{
+class FmuSerialPC_ROS{
 public:
-    SerialCommROS(ros::NodeHandle& nh);
-    ~SerialCommROS();
+    FmuSerialPC_ROS(ros::NodeHandle& nh);
+    ~FmuSerialPC_ROS();
 
 private:
     void getParameters();

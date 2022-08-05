@@ -8,7 +8,7 @@
     <arg name="topicname_from_nucleo" default="/serial/pc/from_fmu"/>
     <arg name="frequency"             default="20000"/> <!-- 200 Hz default-->
 
-    <node pkg="communicate_nucleo" name="serial_node" type="serial_node" output="screen">
+    <node pkg="chk_fmu_ros" name="fmu_serial_pc_node" type="fmu_serial_pc_node" output="screen">
         <param name="serial_port"           type="string" value="$(arg serial_port)"/>
         <param name="baud_rate"             type="int"    value="$(arg baud_rate)"/>
 

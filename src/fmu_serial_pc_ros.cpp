@@ -1,10 +1,10 @@
-#include "serial_comm_ros.h"
+#include "fmu_serial_pc_ros.h"
 
-SerialCommROS::SerialCommROS(ros::NodeHandle& nh)
+FmuSerialPC_ROS::FmuSerialPC_ROS(ros::NodeHandle& nh)
 : nh_(nh), portname_("/dev/ttyACM0"), 
 baudrate_(115200), loop_frequency_(200)
 {
-    ROS_INFO_STREAM("SerialCommROS - starts.");
+    ROS_INFO_STREAM("FmuSerialPC_ROS - starts.");
     ROS_INFO_STREAM("Default  port name  : " << portname_);
     ROS_INFO_STREAM("Default  baud rate  : " << baudrate_);
     ROS_INFO_STREAM("Default  node rate  : " << loop_frequency_ << " Hz\n");
@@ -20,7 +20,7 @@ baudrate_(115200), loop_frequency_(200)
     serial_communicator_ = std::make_shared<SerialCommunicator>(portname_, baudrate_);
     
     // subscriber
-    sub_msg_to_send_ = nh_.subscribe<std_msgs::UInt16MultiArray>(topicname_msg_to_send_, 1, &SerialCommROS::callbackToSend, this);
+    sub_msg_to_send_ = nh_.subscribe<std_msgs::UInt16MultiArray>(topicname_msg_to_send_, 1, &FmuSerialPC_ROS::callbackToSend, this);
 
     // publisher
     pub_msg_recv_ = nh_.advertise<std_msgs::Int8MultiArray>(topicname_msg_recv_,1);
@@ -29,22 +29,22 @@ baudrate_(115200), loop_frequency_(200)
     this->run();
 };
 
-SerialCommROS::~SerialCommROS(){
-    ROS_INFO_STREAM("SerialCommROS - terminate.");
+FmuSerialPC_ROS::~FmuSerialPC_ROS(){
+    ROS_INFO_STREAM("FmuSerialPC_ROS - terminate.");
 };
 
-void SerialCommROS::getParameters(){
+void FmuSerialPC_ROS::getParameters(){
 
     if(!ros::param::has("~serial_port")) 
-        throw std::runtime_error("SerialCommROS - no 'serial_port' is set. terminate program.\n");
+        throw std::runtime_error("FmuSerialPC_ROS - no 'serial_port' is set. terminate program.\n");
     if(!ros::param::has("~baud_rate")) 
-        throw std::runtime_error("SerialCommROS - no 'baud_rate' is set. terminate program.\n");
+        throw std::runtime_error("FmuSerialPC_ROS - no 'baud_rate' is set. terminate program.\n");
     if(!ros::param::has("~topicname_pwm"))      
-        throw std::runtime_error("SerialCommROS - no 'topicname_pwm' is set. terminate program.\n");
+        throw std::runtime_error("FmuSerialPC_ROS - no 'topicname_pwm' is set. terminate program.\n");
     if(!ros::param::has("~topicname_from_nucleo"))  
-        throw std::runtime_error("SerialCommROS - no 'topicname_from_nucleo' is set. terminate program.\n");
+        throw std::runtime_error("FmuSerialPC_ROS - no 'topicname_from_nucleo' is set. terminate program.\n");
     if(!ros::param::has("~frequency"))  
-        throw std::runtime_error("SerialCommROS - no 'frequency' is set. terminate program.\n");
+        throw std::runtime_error("FmuSerialPC_ROS - no 'frequency' is set. terminate program.\n");
     
     ros::param::get("~serial_port",           portname_);
     ros::param::get("~baud_rate",             baudrate_);
@@ -57,8 +57,8 @@ void SerialCommROS::getParameters(){
 
 };
 
-void SerialCommROS::run(){
-    ROS_INFO_STREAM("SerialCommROS - rosnode runs at {" << loop_frequency_ <<"} Hz\n");
+void FmuSerialPC_ROS::run(){
+    ROS_INFO_STREAM("FmuSerialPC_ROS - rosnode runs at {" << loop_frequency_ <<"} Hz\n");
     ros::Rate rate(loop_frequency_);
     // ros::Rate rate(30000);
 
@@ -98,12 +98,12 @@ void SerialCommROS::run(){
     }
 };
 
-void SerialCommROS::callbackToSend(const std_msgs::UInt16MultiArray::ConstPtr& msg){
+void FmuSerialPC_ROS::callbackToSend(const std_msgs::UInt16MultiArray::ConstPtr& msg){
     int len = this->fill16bitsTo8bits(msg,buf_send_);
     sendMessage(buf_send_, len);
 };  
 
-void SerialCommROS::showSerialStatistics(double dt){
+void FmuSerialPC_ROS::showSerialStatistics(double dt){
     static uint32_t seq_rx_success_prev = 0;
     static uint32_t seq_tx_success_prev = 0;
 
@@ -129,21 +129,21 @@ void SerialCommROS::showSerialStatistics(double dt){
     seq_tx_success_prev = seq_tx_success;
 };
 
-bool SerialCommROS::isPacketReady(){
+bool FmuSerialPC_ROS::isPacketReady(){
     return serial_communicator_->isPacketReady();
 };
 
-uint32_t SerialCommROS::getMessage(unsigned char* data){
+uint32_t FmuSerialPC_ROS::getMessage(unsigned char* data){
     uint32_t len = 0;
     len = serial_communicator_->getPacket(data);
     return len;
 };
 
-void SerialCommROS::sendMessage(unsigned char* data, int len){
+void FmuSerialPC_ROS::sendMessage(unsigned char* data, int len){
     serial_communicator_->sendPacket(data, len);
 };
 
-int SerialCommROS::fill16bitsTo8bits(const std_msgs::UInt16MultiArray::ConstPtr& msg, unsigned char* buf_send){
+int FmuSerialPC_ROS::fill16bitsTo8bits(const std_msgs::UInt16MultiArray::ConstPtr& msg, unsigned char* buf_send){
     int len = msg->data.size();
     
     USHORT_UNION data_union;
