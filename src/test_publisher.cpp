@@ -10,7 +10,7 @@ int main(int argc, char **argv) {
     ros::NodeHandle nh("~");
     ROS_INFO_STREAM("test_publisher - STARTS.");
 	
-    ros::Publisher pub = nh.advertise<std_msgs::UInt16MultiArray>("/serial/pwm",1);
+    ros::Publisher pub = nh.advertise<std_msgs::UInt16MultiArray>("/serial/pc/to_fmu",1);
 
 	try{
         uint16_t pwm_values[80] = {0,};
@@ -21,7 +21,7 @@ int main(int argc, char **argv) {
         }
         uint8_t cnt[8] = {0,2,4,6,8,10,12,14};
 		if(ros::ok()){
-            ros::Rate rate(400);
+            ros::Rate rate(1000);
             while(ros::ok()){
                 std_msgs::UInt16MultiArray msg;
                 for(int i = 0; i < 8; ++i){
