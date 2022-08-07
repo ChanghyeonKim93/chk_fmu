@@ -62,7 +62,7 @@ EventQueue event_queue(128 * EVENTS_EVENT_SIZE);
 #define SPI2_MISO PB_14
 #define SPI2_MOSI PB_15
 
-#define ADC1_IN10 PC_0
+#define ADC1_IN10 PC_0 // Analog Voltage Read
 #define ADC1_IN11 PC_1
 #define ADC1_IN12 PC_2
 #define ADC1_IN13 PC_3
@@ -121,6 +121,31 @@ void ISR_IMU(){
     event_queue.call(workfunction_getIMU);
 };
 
+// PWM outputs
+DroneMotorPwm motor_pwm;
+uint16_t pwm_values[8]; 
+void setMotorPWM_01234567(uint16_t pwm_ushort[8]){
+    for(int i = 0; i < 8; ++i){
+        if(pwm_ushort[i] < 0 ) pwm_ushort[i] = 0;
+        if(pwm_ushort[i] > 4095) pwm_ushort[i] = 4095;
+    }
+    motor_pwm.setPWM_all(pwm_ushort);
+};
+
+// Voltage reader                
+USHORT_UNION vol_ushort[4];
+AnalogIn voltage_adc0(ADC1_IN10);
+AnalogIn voltage_adc1(ADC1_IN11);
+AnalogIn voltage_adc2(ADC1_IN12);
+AnalogIn voltage_adc3(ADC1_IN13);
+
+void workfunction_getVoltages(){
+    vol_ushort[0].ushort_ = voltage_adc0.read_u16(); // Read Analog voltage data (A0 pin, AnalogIn)
+    vol_ushort[1].ushort_ = voltage_adc1.read_u16(); // Read Analog voltage data (A0 pin, AnalogIn)
+    vol_ushort[2].ushort_ = voltage_adc2.read_u16(); // Read Analog voltage data (A0 pin, AnalogIn)
+    vol_ushort[3].ushort_ = voltage_adc3.read_u16(); // Read Analog voltage data (A0 pin, AnalogIn)
+};
+
 // Serial
 uint8_t packet_send[256];
 uint8_t packet_recv[256];
@@ -139,8 +164,23 @@ void workfunction_readSerialUSB(){
         int len_recv_message = 0;
         len_recv_message = serial_usb.getReceivedMessage(packet_recv); 
 
-        if( len_recv_message > 0 ) { // Successfully received the packet.
-            // do something...
+        if( len_recv_message == 16 ) { // Successfully received the packet.
+            // In case of 8 PWM signals.
+            // ======== USER-DEFINED CODE START ======== 
+
+            USHORT_UNION pwm_tmp;
+            pwm_tmp.bytes_[0] = packet_recv[0];  pwm_tmp.bytes_[1] = packet_recv[1];   pwm_values[0] = pwm_tmp.ushort_;
+            pwm_tmp.bytes_[0] = packet_recv[2];  pwm_tmp.bytes_[1] = packet_recv[3];   pwm_values[1] = pwm_tmp.ushort_;
+            pwm_tmp.bytes_[0] = packet_recv[4];  pwm_tmp.bytes_[1] = packet_recv[5];   pwm_values[2] = pwm_tmp.ushort_;
+            pwm_tmp.bytes_[0] = packet_recv[6];  pwm_tmp.bytes_[1] = packet_recv[7];   pwm_values[3] = pwm_tmp.ushort_;
+            pwm_tmp.bytes_[0] = packet_recv[8];  pwm_tmp.bytes_[1] = packet_recv[9];   pwm_values[4] = pwm_tmp.ushort_;
+            pwm_tmp.bytes_[0] = packet_recv[10]; pwm_tmp.bytes_[1] = packet_recv[11];  pwm_values[5] = pwm_tmp.ushort_;
+            pwm_tmp.bytes_[0] = packet_recv[12]; pwm_tmp.bytes_[1] = packet_recv[13];  pwm_values[6] = pwm_tmp.ushort_;
+            pwm_tmp.bytes_[0] = packet_recv[14]; pwm_tmp.bytes_[1] = packet_recv[15];  pwm_values[7] = pwm_tmp.ushort_;
+
+            setMotorPWM_01234567(pwm_values);     
+
+            // ======== USER-DEFINED CODE END ========      
         }
     }
 };
@@ -157,7 +197,11 @@ void workfunction_readSerialTelemetry(){
         len_recv_message = serial_telemetry.getReceivedMessage(telemetry_recv); 
 
         if( len_recv_message > 0 ) { // Successfully received the packet.
-            // do something...
+            // ======== USER-DEFINED CODE START ======== 
+
+            // do your code.
+
+            // ======== USER-DEFINED CODE END ========      
         }
     }
 };
@@ -172,18 +216,6 @@ void tryToReadSerialUSB(){ event_queue.call(workfunction_readSerialUSB); };
 void tryToSendSerialUSB(){ event_queue.call(workfunction_sendSerialUSB); };
 void tryToReadSerialTelemetry(){ event_queue.call(workfunction_readSerialTelemetry); };
 void tryToSendSerialTelemetry(){ event_queue.call(workfunction_sendSerialTelemetry); };
-
-
-// PWM outputs
-DroneMotorPwm motor_pwm;
-uint16_t pwm_values[8]; 
-void setMotorPWM_01234567(uint16_t pwm_ushort[8]){
-    for(int i = 0; i < 8; ++i){
-        if(pwm_ushort[i] < 0 ) pwm_ushort[i] = 0;
-        if(pwm_ushort[i] > 4095) pwm_ushort[i] = 4095;
-    }
-    motor_pwm.setPWM_all(pwm_ushort);
-};
 
 int main() {
     // Timer starts.
@@ -257,12 +289,6 @@ int main() {
 
         // IMU received.
         if(flag_imu_ready){
-            for(ii = 0; ii < 4; ++ii){
-                unsigned short tmp0 = pwm_values[2*ii];
-                pwm_values[2*ii] = pwm_values[2*ii+1];
-                pwm_values[2*ii+1] = tmp0;
-            }
-            setMotorPWM_01234567(pwm_values);
             
             if(serial_usb.writable()) { // If serial USB can be written,
                 // Trigger signal output.
@@ -273,7 +299,7 @@ int main() {
                     signal_trigger = 1;
                 }
                 
-                // Fill IMU data into the serial buffer
+                // IMU data (3D acc, 3D gyro, 3D magnetometer)
                 packet_send[0]  = acc_short[0].bytes_[0]; packet_send[1]  = acc_short[0].bytes_[1];
                 packet_send[2]  = acc_short[1].bytes_[0]; packet_send[3]  = acc_short[1].bytes_[1];
                 packet_send[4]  = acc_short[2].bytes_[0]; packet_send[5]  = acc_short[2].bytes_[1];
@@ -294,11 +320,26 @@ int main() {
                 packet_send[22]  = tusec.bytes_[2]; // time (microsecond part, high)
                 packet_send[23]  = tusec.bytes_[3]; // time (microsecond part, highest)
 
+                // Camera trigger state
                 packet_send[24]  = flag_camera_trigger; // 'CAMERA_TRIGGER_HIGH' or 'CAMERA_TRIGGER_LOW'
+
+                // AnalogIn (battery voltage data)
+                workfunction_getVoltages();
+                packet_send[25]  = vol_ushort[0].bytes_[0];
+                packet_send[26]  = vol_ushort[0].bytes_[1];
+                packet_send[27]  = vol_ushort[1].bytes_[0];
+                packet_send[28]  = vol_ushort[1].bytes_[1];
+                packet_send[29]  = vol_ushort[2].bytes_[0];
+                packet_send[30]  = vol_ushort[2].bytes_[1];
+                packet_send[31]  = vol_ushort[3].bytes_[0];
+                packet_send[32]  = vol_ushort[3].bytes_[1];
+
+                // Initialize flags
                 signal_trigger = 0;
                 flag_camera_trigger = CAMERA_TRIGGER_LOW;
 
-                len_packet_send = 25;
+                // Send length
+                len_packet_send = 33;
 
                 tryToSendSerialUSB(); // Send!
 

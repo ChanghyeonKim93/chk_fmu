@@ -2,7 +2,7 @@
 
 FmuSerialPC_ROS::FmuSerialPC_ROS(ros::NodeHandle& nh)
 : nh_(nh), portname_("/dev/ttyACM0"), 
-baudrate_(115200), loop_frequency_(200)
+baudrate_(115200), loop_frequency_(4000)
 {
     ROS_INFO_STREAM("FmuSerialPC_ROS - starts.");
     ROS_INFO_STREAM("Default  port name  : " << portname_);
@@ -71,10 +71,11 @@ void FmuSerialPC_ROS::run(){
             
             if(len > 0){
                 // publish the Received message from the Nucleo board.
+                // std::cout << "RX packet length: " << len << std::endl;
                 for(int i = 0; i < len; ++i) msg_recv_.data.push_back(buf_recv_[i]);
                 USHORT_UNION voltage_ushort;
-                voltage_ushort.bytes_[0] = buf_recv_[0];
-                voltage_ushort.bytes_[1] = buf_recv_[1];
+                voltage_ushort.bytes_[0] = buf_recv_[31];
+                voltage_ushort.bytes_[1] = buf_recv_[32];
 
                 float voltage_float= ((float)voltage_ushort.ushort_/65535.0f * 3.3f);
                 // ROS_INFO_STREAM("VOLTAGE : " << voltage_float << " V");
