@@ -228,14 +228,14 @@ int main() {
 
     std::chrono::microseconds time_curr;
 
-    pwm_values[0] = 500;
-    pwm_values[1] = 2047;
-    pwm_values[2] = 500;
-    pwm_values[3] = 2047;
-    pwm_values[4] = 500;
-    pwm_values[5] = 2047;
-    pwm_values[6] = 500;
-    pwm_values[7] = 2047;
+    pwm_values[0] = 0;
+    pwm_values[1] = 0;
+    pwm_values[2] = 0;
+    pwm_values[3] = 0;
+    pwm_values[4] = 0;
+    pwm_values[5] = 0;
+    pwm_values[6] = 0;
+    pwm_values[7] = 0;
 
     // Start the event queue
     thread_poll.start(callback(&event_queue, &EventQueue::dispatch_forever));
@@ -266,7 +266,10 @@ int main() {
     flag_IMU_init = true;
 
     int cnt = 0;
-    int ii = 0;
+    int ii  = 0;
+
+    USHORT_UNION telemetry_send_count;
+    telemetry_send_count.ushort_ = 0;
     while (true) {
         // Write if writable.
         time_curr = timer.elapsed_time();
@@ -274,18 +277,24 @@ int main() {
         std::chrono::duration<int, std::micro> dt_send_telemetry = time_curr - time_send_telemetry_prev;
 
         // Telemetry send
-        // if(dt_send_telemetry.count() > 199999) {
-        //     telemetry_send[0]  = 'a';
-        //     telemetry_send[1]  = 'b';
-        //     telemetry_send[2]  = 'c';
-        //     telemetry_send[3]  = 'd';
+        if(dt_send_telemetry.count() > 499999) {
+            ++telemetry_send_count.ushort_;
 
-        //     len_telemetry_send = 4;
-        //     if(serial_telemetry.writable()) 
-        //         tryToSendSerialTelemetry();
+            telemetry_send[0]  = telemetry_send_count.bytes_[0];
+            telemetry_send[1]  = telemetry_send_count.bytes_[1];
+            telemetry_send[2]  = 'c';
+            telemetry_send[3]  = 'd';
+            telemetry_send[4]  = 'a';
+            telemetry_send[5]  = 'b';
+            telemetry_send[6]  = 'c';
+            telemetry_send[7]  = 'd';
+
+            len_telemetry_send = 8;
+            if(serial_telemetry.writable()) 
+                tryToSendSerialTelemetry();
             
-        //     time_send_telemetry_prev = time_curr;
-        // }
+            time_send_telemetry_prev = time_curr;
+        }
 
         // IMU received.
         if(flag_imu_ready){
