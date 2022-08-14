@@ -218,6 +218,8 @@ void tryToReadSerialTelemetry(){ event_queue.call(workfunction_readSerialTelemet
 void tryToSendSerialTelemetry(){ event_queue.call(workfunction_sendSerialTelemetry); };
 
 int main() {
+    signal_trigger = 0;
+
     // Timer starts.
     timer.start();
     std::chrono::microseconds time_send_usb_prev = timer.elapsed_time();
@@ -261,7 +263,27 @@ int main() {
     imu_int.rise(ISR_IMU);
 
     // signal_trigger low.
+    
+    signal_trigger = 1;
+    ThisThread::sleep_for(200ms);
     signal_trigger = 0;
+    ThisThread::sleep_for(200ms);
+    signal_trigger = 1;
+    ThisThread::sleep_for(200ms);
+    signal_trigger = 0;
+    ThisThread::sleep_for(200ms);
+    signal_trigger = 1;
+    ThisThread::sleep_for(200ms);
+    signal_trigger = 0;
+    ThisThread::sleep_for(200ms);
+    signal_trigger = 1;
+    ThisThread::sleep_for(200ms);
+    signal_trigger = 0;
+    ThisThread::sleep_for(200ms);
+    signal_trigger = 1;
+    ThisThread::sleep_for(200ms);
+    signal_trigger = 0;
+
 
     flag_IMU_init = true;
 
@@ -277,24 +299,24 @@ int main() {
         std::chrono::duration<int, std::micro> dt_send_telemetry = time_curr - time_send_telemetry_prev;
 
         // Telemetry send
-        if(dt_send_telemetry.count() > 499999) {
-            ++telemetry_send_count.ushort_;
+        // if(dt_send_telemetry.count() > 499999) {
+        //     ++telemetry_send_count.ushort_;
 
-            telemetry_send[0]  = telemetry_send_count.bytes_[0];
-            telemetry_send[1]  = telemetry_send_count.bytes_[1];
-            telemetry_send[2]  = 'c';
-            telemetry_send[3]  = 'd';
-            telemetry_send[4]  = 'a';
-            telemetry_send[5]  = 'b';
-            telemetry_send[6]  = 'c';
-            telemetry_send[7]  = 'd';
+        //     telemetry_send[0]  = telemetry_send_count.bytes_[0];
+        //     telemetry_send[1]  = telemetry_send_count.bytes_[1];
+        //     telemetry_send[2]  = 'c';
+        //     telemetry_send[3]  = 'd';
+        //     telemetry_send[4]  = 'a';
+        //     telemetry_send[5]  = 'b';
+        //     telemetry_send[6]  = 'c';
+        //     telemetry_send[7]  = 'd';
 
-            len_telemetry_send = 8;
-            if(serial_telemetry.writable()) 
-                tryToSendSerialTelemetry();
+        //     len_telemetry_send = 8;
+        //     if(serial_telemetry.writable()) 
+        //         tryToSendSerialTelemetry();
             
-            time_send_telemetry_prev = time_curr;
-        }
+        //     time_send_telemetry_prev = time_curr;
+        // }
 
         // IMU received.
         if(flag_imu_ready){
