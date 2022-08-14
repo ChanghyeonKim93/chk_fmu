@@ -189,6 +189,7 @@ void workfunction_sendSerialUSB(){
         serial_usb.send_withChecksum(packet_send, len_packet_send);
         len_packet_send = 0;
     }
+    signal_trigger = 0;
 };
 
 void workfunction_readSerialTelemetry(){
@@ -218,6 +219,26 @@ void tryToReadSerialTelemetry(){ event_queue.call(workfunction_readSerialTelemet
 void tryToSendSerialTelemetry(){ event_queue.call(workfunction_sendSerialTelemetry); };
 
 int main() {
+    signal_trigger = 0;
+
+    signal_trigger = 1;
+    ThisThread::sleep_for(200ms);
+    signal_trigger = 0;
+    ThisThread::sleep_for(200ms);
+    signal_trigger = 1;
+    ThisThread::sleep_for(200ms);
+    signal_trigger = 0;
+    ThisThread::sleep_for(200ms);
+    signal_trigger = 1;
+    ThisThread::sleep_for(200ms);
+    signal_trigger = 0;
+    ThisThread::sleep_for(200ms);
+    signal_trigger = 1;
+    ThisThread::sleep_for(200ms);
+    signal_trigger = 0;
+    ThisThread::sleep_for(200ms);
+    signal_trigger = 1;
+    ThisThread::sleep_for(200ms);
     signal_trigger = 0;
 
     // Timer starts.
@@ -264,26 +285,6 @@ int main() {
 
     // signal_trigger low.
     
-    signal_trigger = 1;
-    ThisThread::sleep_for(200ms);
-    signal_trigger = 0;
-    ThisThread::sleep_for(200ms);
-    signal_trigger = 1;
-    ThisThread::sleep_for(200ms);
-    signal_trigger = 0;
-    ThisThread::sleep_for(200ms);
-    signal_trigger = 1;
-    ThisThread::sleep_for(200ms);
-    signal_trigger = 0;
-    ThisThread::sleep_for(200ms);
-    signal_trigger = 1;
-    ThisThread::sleep_for(200ms);
-    signal_trigger = 0;
-    ThisThread::sleep_for(200ms);
-    signal_trigger = 1;
-    ThisThread::sleep_for(200ms);
-    signal_trigger = 0;
-
 
     flag_IMU_init = true;
 
@@ -366,7 +367,6 @@ int main() {
                 packet_send[32]  = vol_ushort[3].bytes_[1];
 
                 // Initialize flags
-                signal_trigger = 0;
                 flag_camera_trigger = CAMERA_TRIGGER_LOW;
 
                 // Send length
