@@ -16,7 +16,7 @@
 #define MOTOR_6_PWM PB_0  // pwm3/3
 #define MOTOR_7_PWM PB_1  // pwm3/4
 
-#define PWM_FREQUENCY 3000 // Hz
+#define PWM_FREQUENCY 500 // Hz
 
 class DroneMotorPwm {
 private:
