@@ -78,3 +78,24 @@ CHK_FMU can provide belows:
 
 4.Use it!
 ------
+
+
+5.Trouble shooting
+------
+  1) Set USB low_latency 
+
+  cat /cat/sys/bus/usb-serial/devices/ttyUSB0/latency_timer
+16
+
+$ echo 1 | sudo tee /sys/bus/usb-serial/devices/ttyUSB0/latency_timer
+
+$ sudo apt install setserial
+
+KERNEL=="ttyUSB[0-9]*", MODE="666", ATTRS{idVendor}="0403", RUN+="/bin/setserial /dev/%k low_latency"
+
+$ cat /cat/sys/bus/usb-serial/devices/ttyUSB0/latency_timer
+1
+$ cat /cat/sys/bus/usb-serial/devices/ttyUSB1/latency_timer
+1
+$ cat /cat/sys/bus/usb-serial/devices/ttyUSB2/latency_timer
+1
