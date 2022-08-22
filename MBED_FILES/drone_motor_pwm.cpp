@@ -2,7 +2,8 @@
 
 DroneMotorPwm::DroneMotorPwm()
 : pwm_{PwmOut(MOTOR_0_PWM),PwmOut(MOTOR_1_PWM),PwmOut(MOTOR_2_PWM),PwmOut(MOTOR_3_PWM),
-PwmOut(MOTOR_4_PWM),PwmOut(MOTOR_5_PWM),PwmOut(MOTOR_6_PWM),PwmOut(MOTOR_7_PWM)}
+PwmOut(MOTOR_4_PWM),PwmOut(MOTOR_5_PWM),PwmOut(MOTOR_6_PWM),PwmOut(MOTOR_7_PWM),
+PwmOut(MOTOR_8_PWM),PwmOut(MOTOR_9_PWM),PwmOut(MOTOR_10_PWM),PwmOut(MOTOR_11_PWM)}
 {
     uint32_t period_us_ = (1000000/PWM_FREQUENCY);
 
@@ -20,7 +21,7 @@ void DroneMotorPwm::setPWM_all(uint16_t duty[NUM_MOTORS]){
 }
 
 void DroneMotorPwm::setPWM(uint32_t num, uint16_t duty){
-    if(num >= 0 && num < 8){
+    if(num >= 0 && num < NUM_MOTORS){
         float duty_float = (float)duty / 4095.0f;
         pwm_[num].write(duty_float);
     }
