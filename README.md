@@ -25,6 +25,7 @@ CHK_FMU can provide belows:
 
 1.Requirements
 ------
+* **Ubuntu 20.04 LTS**  (Highly recommended. On Ubuntu 18.04 LTS, USB communication does not work.)
 * CHK_FMU board
 * Mbed Studio (software for uploading the code to the FMU)
 * ST-LINK/V2 (hardware for uploading the code to the FMU)
@@ -80,22 +81,6 @@ CHK_FMU can provide belows:
 ------
 
 
-5.Trouble shooting
+5.Issues
 ------
-  1) Set USB low_latency 
-
-  cat /cat/sys/bus/usb-serial/devices/ttyUSB0/latency_timer
-16
-
-$ echo 1 | sudo tee /sys/bus/usb-serial/devices/ttyUSB0/latency_timer
-
-$ sudo apt install setserial
-
-KERNEL=="ttyUSB[0-9]*", MODE="666", ATTRS{idVendor}="0403", RUN+="/bin/setserial /dev/%k low_latency"
-
-$ cat /cat/sys/bus/usb-serial/devices/ttyUSB0/latency_timer
-1
-$ cat /cat/sys/bus/usb-serial/devices/ttyUSB1/latency_timer
-1
-$ cat /cat/sys/bus/usb-serial/devices/ttyUSB2/latency_timer
-1
+  1) CH34x (USB-serial chip on the FMU0) is not working on Ubuntu 18.04 LTS. It might be a kernel version problem. (failed kernel version: 5.4.xx)
