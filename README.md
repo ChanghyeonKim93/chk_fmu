@@ -9,11 +9,14 @@ It is built from the scratch using a STM32F407VET6 MCU.
 
 CHK_FMU can provide belows:
 
-* 12 PWM outputs with a configurable frequency (1 Hz ~ 3 kHZ tested, 3.3 Volts HIGH)
+* 12 PWM outputs with a configurable frequency (1 Hz ~ 3,000 Hz tested, 3.3 Volts HIGH)
+*Until now, only PWM 0~7 are supported.
 
 * 4 analog reads (0 ~ 3.3 Volts)
+*Somewhat jitter. ( +- 100 mV)
 
 * 1 kHz IMU datastream (3-D acc. 3-D gyro, 3-D Magnetometers from Invensense MPU-9250)
+*High frequency noise vulnerable. (ex- drone motors)
 
 * Serial communication with PC by micro-USB cable (Attached to USART1, baudrate up to 921600, using CH340G TTL-USB converter)
 
@@ -31,8 +34,6 @@ CHK_FMU can provide belows:
 * ST-LINK/V2 (hardware for uploading the code to the FMU)
 * four female-to-female jumper cables (to connect ST-LINK/V2 and the FMU)
 * micro-USB cable (5V power from PC to FMU, and USB communication with PC)
-
-<!-- - `aa`: dfdf -->
 
 2.Dependencies
 ------
