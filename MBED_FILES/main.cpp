@@ -153,11 +153,11 @@ uint32_t len_packet_recv = 0;
 uint32_t len_packet_send = 0;
 SerialCommunicatorMbed serial_usb(BAUD_RATE_USB, USART1_TX, USART1_RX);
 
-uint8_t telemetry_send[256];
-uint8_t telemetry_recv[256];
-uint32_t len_telemetry_recv = 0;
-uint32_t len_telemetry_send = 0;
-SerialCommunicatorMbed serial_telemetry(BAUD_RATE_TELEMETRY, USART2_TX, USART2_RX);
+// uint8_t telemetry_send[256];
+// uint8_t telemetry_recv[256];
+// uint32_t len_telemetry_recv = 0;
+// uint32_t len_telemetry_send = 0;
+// SerialCommunicatorMbed serial_telemetry(BAUD_RATE_TELEMETRY, USART2_TX, USART2_RX);
 
 void workfunction_readSerialUSB(){
     if(serial_usb.tryToReadSerialBuffer()) { // packet ready!
@@ -192,31 +192,31 @@ void workfunction_sendSerialUSB(){
     signal_trigger = 0;
 };
 
-void workfunction_readSerialTelemetry(){
-    if(serial_telemetry.tryToReadSerialBuffer()) { // packet ready!
-        int len_recv_message = 0;
-        len_recv_message = serial_telemetry.getReceivedMessage(telemetry_recv); 
+// void workfunction_readSerialTelemetry(){
+//     if(serial_telemetry.tryToReadSerialBuffer()) { // packet ready!
+//         int len_recv_message = 0;
+//         len_recv_message = serial_telemetry.getReceivedMessage(telemetry_recv); 
 
-        if( len_recv_message > 0 ) { // Successfully received the packet.
-            // ======== USER-DEFINED CODE START ======== 
+//         if( len_recv_message > 0 ) { // Successfully received the packet.
+//             // ======== USER-DEFINED CODE START ======== 
 
-            // do your code.
+//             // do your code.
 
-            // ======== USER-DEFINED CODE END ========      
-        }
-    }
-};
-void workfunction_sendSerialTelemetry(){
-    if(serial_telemetry.writable()){
-        serial_telemetry.send_withChecksum(telemetry_send, len_telemetry_send);
-        len_telemetry_send = 0;
-    }
-};
+//             // ======== USER-DEFINED CODE END ========      
+//         }
+//     }
+// };
+// void workfunction_sendSerialTelemetry(){
+//     if(serial_telemetry.writable()){
+//         serial_telemetry.send_withChecksum(telemetry_send, len_telemetry_send);
+//         len_telemetry_send = 0;
+//     }
+// };
 
 void tryToReadSerialUSB(){ event_queue.call(workfunction_readSerialUSB); };
 void tryToSendSerialUSB(){ event_queue.call(workfunction_sendSerialUSB); };
-void tryToReadSerialTelemetry(){ event_queue.call(workfunction_readSerialTelemetry); };
-void tryToSendSerialTelemetry(){ event_queue.call(workfunction_sendSerialTelemetry); };
+// void tryToReadSerialTelemetry(){ event_queue.call(workfunction_readSerialTelemetry); };
+// void tryToSendSerialTelemetry(){ event_queue.call(workfunction_sendSerialTelemetry); };
 
 int main() {
     signal_trigger = 0;

@@ -2,7 +2,7 @@
 #define _DRONE_MOTOR_PWM_H_
 #include "mbed.h"
 
-#define NUM_MOTORS 12
+#define NUM_MOTORS 8
 
 // PWM (TIMER 2)
 #define MOTOR_0_PWM PA_0  // pwm2/1
