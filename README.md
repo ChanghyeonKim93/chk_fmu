@@ -9,11 +9,14 @@ It is built from the scratch using a STM32F407VET6 MCU.
 
 CHK_FMU can provide belows:
 
-* 12 PWM outputs with a configurable frequency (1 Hz ~ 3 kHZ tested, 3.3 Volts HIGH)
+* 12 PWM outputs with a configurable frequency (1 Hz ~ 3,000 Hz tested, 3.3 Volts HIGH)
+*Until now, only PWM 0~7 are supported.
 
 * 4 analog reads (0 ~ 3.3 Volts)
+*Somewhat jitter. ( +- 100 mV)
 
 * 1 kHz IMU datastream (3-D acc. 3-D gyro, 3-D Magnetometers from Invensense MPU-9250)
+*High frequency noise vulnerable. (ex- drone motors)
 
 * Serial communication with PC by micro-USB cable (Attached to USART1, baudrate up to 921600, using CH340G TTL-USB converter)
 
@@ -25,13 +28,12 @@ CHK_FMU can provide belows:
 
 1.Requirements
 ------
+* **Ubuntu 20.04 LTS**  (Highly recommended. On Ubuntu 18.04 LTS, USB communication does not work.)
 * CHK_FMU board
 * Mbed Studio (software for uploading the code to the FMU)
 * ST-LINK/V2 (hardware for uploading the code to the FMU)
 * four female-to-female jumper cables (to connect ST-LINK/V2 and the FMU)
 * micro-USB cable (5V power from PC to FMU, and USB communication with PC)
-
-<!-- - `aa`: dfdf -->
 
 2.Dependencies
 ------
@@ -80,22 +82,6 @@ CHK_FMU can provide belows:
 ------
 
 
-5.Trouble shooting
+5.Issues
 ------
-  1) Set USB low_latency 
-
-  cat /cat/sys/bus/usb-serial/devices/ttyUSB0/latency_timer
-16
-
-$ echo 1 | sudo tee /sys/bus/usb-serial/devices/ttyUSB0/latency_timer
-
-$ sudo apt install setserial
-
-KERNEL=="ttyUSB[0-9]*", MODE="666", ATTRS{idVendor}="0403", RUN+="/bin/setserial /dev/%k low_latency"
-
-$ cat /cat/sys/bus/usb-serial/devices/ttyUSB0/latency_timer
-1
-$ cat /cat/sys/bus/usb-serial/devices/ttyUSB1/latency_timer
-1
-$ cat /cat/sys/bus/usb-serial/devices/ttyUSB2/latency_timer
-1
+  1) CH34x (USB-serial chip on the FMU0) is not working on Ubuntu 18.04 LTS. It might be a kernel version problem. (failed kernel version: 5.4.xx)
